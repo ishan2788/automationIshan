@@ -1,0 +1,119 @@
+import time
+from datetime import datetime
+from appium import webdriver
+from selenium.common.exceptions import InvalidSessionIdException
+from get_AccessCode import AccessCodes
+from iOS.IBS.functions_iRD import click_element, send_keys, swipe_down, swipe_up, go_next, enter_emailcode
+
+
+class Onboarding:
+    dc = {}
+    driver = None
+    time = None
+    ct = None
+    name = None
+    user_name = None
+    password = "Caracare@123"
+    access_code = None
+    dimension = ['width', 'height']
+    path = None
+    phone = '+49123456789'
+
+    def __init__(self):
+        # self.access_code = AccessCodes().test_stg_rct_intervention()
+        self.access_code = AccessCodes().test_rct_intervention()
+        print("Access_Code = " + self.access_code)
+
+    def test_setup(self):
+        self.dc = {
+            "platformName": "iOS",
+            "xcodeOrgId": "5K7J2838R5",
+            "xcodeSigningId": "iPhone Developer",
+            "deviceName": "Cara's iPhone",
+            "automationName": "XCUITest",
+            "bundleId": "com.gohidoc.caraeu",
+            "udid": "cebfcd519bbf550c384f2fa30c201c86926ab935",
+            "platformVersion": "15.3",
+            "noReset": "true"
+        }
+
+        self.time = datetime.now()
+        self.ct = time.strftime("%d%m%y%H%M%S")
+        self.user_name = "ishan" + "+" + self.access_code + "@cara.care"
+        print(self.user_name)
+        self.name = "ishan" + "+" + self.access_code
+        self.driver = webdriver.Remote("http://localhost:4723", self.dc)
+        self.driver.implicitly_wait(50)
+
+    def test_onboarding(self):
+        click_element(self.driver, index=0, path="welcomeScreen_registerButton")
+        click_element(self.driver, index=0, path="diagnosisCodeReminderScreen_continueButton")
+        click_element(self.driver, index=0, path="programSelectionScreen_programCard_Reizdarm")
+        click_element(self.driver, index=0, path="instructionsOfUseScreen_continueButton")
+        click_element(self.driver, index=0, path="contradictionCheckScreen_checkBox_diagnosis")
+        time.sleep(1)
+        click_element(self.driver, index=0, path="contradictionCheckScreen_checkBox_minAge")
+        click_element(self.driver, index=0, path="contradictionCheckScreen_checkBox_maxAge")
+        click_element(self.driver, index=0, path="contradictionCheckScreen_checkBox_pregnancy")
+        click_element(self.driver, index=0, path="contradictionCheckScreen_continueButton")
+
+        send_keys(self.driver, index=0, path="registrationScreen_nicknameTextInput", keys=self.name)
+        send_keys(self.driver, index=0, path="registrationScreen_emailTextInput", keys=self.user_name)
+        send_keys(self.driver, index=0, path="registrationScreen_passwordTextInput", keys=self.password)
+        click_element(self.driver, index=0, path="registrationScreen_termsOfUseCheckBox")
+        time.sleep(1)
+        swipe_up(self.driver)
+        click_element(self.driver, index=0, path="registrationScreen_privacyPolicyCheckBox")
+        click_element(self.driver, index=0, path="registrationScreen_registerButton")
+        time.sleep(5)
+        click_element(self.driver, index=0, path="emailVerificationScreen_openEmailAppButton")
+        enter_emailcode(self.driver)
+        time.sleep(2)
+        click_element(self.driver, index=0, path="emailVerificationScreen_verifyButton")
+
+        # send_keys(self.driver, index=0, path="registrationScreen_access_code_input", keys=self.access_code)
+        #
+        # time.sleep(3)
+        # self.driver.hide_keyboard('tapOut')
+        # swipe_down(self.driver)
+        # time.sleep(5)
+        # swipe_down(self.driver)
+
+        #
+        # time.sleep(10)
+        # swipe_up(self.driver)
+        # time.sleep(10)
+        #
+
+        #
+        # click_element(self.driver, index=1, path='//XCUIElementTypeStaticText[@name="E-Mail-Adresse bestätigen"]')
+        # time.sleep(10)
+        #
+        # self.driver.launch_app()
+        # time.sleep(5)
+        #
+        # click_element(self.driver, index=0, path='appUsageScreen_next_button')
+        # send_keys(self.driver, index=0, path="setNicknameScreen_name_input", keys=self.name)
+        #
+        # self.driver.hide_keyboard('tapOut')
+        # click_element(self.driver, index=0, path='setNicknameScreen_next_button')
+        #
+        # send_keys(self.driver, index=0, path="mobilePhoneScreen.numberInput", keys=self.phone)
+        # time.sleep(5)
+        # click_element(self.driver, index=3, path='Done')
+        # click_element(self.driver, index=0, path='setNicknameScreen_next_button')
+        # time.sleep(5)
+        # click_element(self.driver, index=0, path='clinical_trial_onboarding_acknowledged_checkbox')
+        # time.sleep(15)
+        # click_element(self.driver, index=0, path='setNicknameScreen_next_button')
+        # time.sleep(15)
+        # click_element(self.driver, index=0, path='setNicknameScreen_next_button')
+        #
+        # go_next(self.driver, case=0)
+
+    try:
+        def test_teardown(self):
+            self.driver.quit()
+    except InvalidSessionIdException:
+        print("Error in closing the driver")
+        pass
